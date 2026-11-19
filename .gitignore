@@ -28,6 +28,7 @@ old_passdump_run8/
 *.log
 *.ppm
 *.png
+!docs/screenshots/*.png
 sample_*.txt
 capture
 prs_open.json

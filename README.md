@@ -6,6 +6,12 @@ Native macOS (Apple Silicon / Metal) static recompilation of **Deus Ex: Human Re
 
 See [HANDOFF.md](HANDOFF.md) for detailed technical notes, status, and debugging history.
 
+## Screenshots
+
+| Title Screen | Loading Screen | Opening 3D Cinematic |
+|---|---|---|
+| ![Title Screen](docs/screenshots/title_screen.png) | ![Loading Screen](docs/screenshots/loading_screen.png) | ![Opening 3D Cinematic](docs/screenshots/opening_3d.png) |
+
 ---
 
 ## Prerequisites (macOS / Apple Silicon)
