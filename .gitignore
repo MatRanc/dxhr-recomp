@@ -1,0 +1,34 @@
+# Copyrighted game data, extracted binaries, and virtual PS3 storage
+game/
+hdd0/
+hdd1/
+dev_hdd0/
+work/
+spu_imgs/
+jobdump/
+
+# Lifted / generated code and loader output (reproducible from user's disc/EBOOT)
+recompiled/
+out/
+port-afro/spu/
+
+# Older superseded port & toolkit clone
+port/
+ps3recomp/
+
+# Build artifacts & runtime caches
+port-afro/build/
+cache/
+shaderdump/
+frames/
+passdump/
+old_passdump_run8/
+
+# Logs, frame dumps, profiling samples, temp files
+*.log
+*.ppm
+*.png
+sample_*.txt
+capture
+prs_open.json
+.DS_Store

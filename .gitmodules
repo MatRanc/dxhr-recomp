@@ -1,0 +1,4 @@
+[submodule "ps3recomp-afro"]
+	path = ps3recomp-afro
+	url = https://github.com/MatRanc/ps3recomp.git
+	branch = dxhr
