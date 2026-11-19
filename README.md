@@ -6,6 +6,12 @@ Native macOS (Apple Silicon / Metal) static recompilation of **Deus Ex: Human Re
 
 See [HANDOFF.md](HANDOFF.md) for detailed technical notes, status, and debugging history.
 
+## Screenshots
+
+| Main Menu | Sarif Industries Lab | Lab 24 |
+|---|---|---|
+| ![Main Menu](docs/screenshots/main_menu.png) | ![Sarif Industries Lab](docs/screenshots/sarif_lab.png) | ![Lab 24](docs/screenshots/lab24.png) |
+
 ## Status
 
 - **Target:** Apple Silicon (M1), macOS, Metal (`BLES01150` v1.01)
