@@ -10,14 +10,25 @@
  * no lifted PRX and no overrides needs.
  */
 
+#include <cstdint>
 #include <cstdio>
 #include <cstring>
 
 #include "ps3emu/ps3types.h"
 #include "ps3emu/error_codes.h"
 
+extern "C" {
+    void ps3_hle_register(uint32_t nid, const char* name, void* handler);
+    void cellKbRead(void);
+    void cellSpursQueuePopBody(void);
+    void sys_net_bnet_listen(void);
+    void sys_net_bnet_accept(void);
+    void sys_net_bnet_send(void);
+    void sys_net_bnet_inet_addr(void);
+}
+
 /* ---------------------------------------------------------------------------
- * PRX loading
+ * PRX loading & DXHR NID registrations
  *
  * main.cpp calls this once, after the lifted function table is registered and
  * vm_base is live, before the game runs. A title that lifts a real system PRX
@@ -28,6 +39,14 @@
 
 extern "C" void ps3_load_prx_modules(void)
 {
+    /* Register NIDs missing from stock gen_hle_nids.py output so a freshly
+     * regenerated recompiled/ppu_hle_nids.cpp works without manual edits. */
+    ps3_hle_register(0xFF0A21B7u, "cellKbRead", (void*)cellKbRead);
+    ps3_hle_register(0x91066667u, "cellSpursQueuePopBody", (void*)cellSpursQueuePopBody);
+    ps3_hle_register(0x28E208BBu, "listen", (void*)sys_net_bnet_listen);
+    ps3_hle_register(0xC94F6939u, "accept", (void*)sys_net_bnet_accept);
+    ps3_hle_register(0xDC751B40u, "send", (void*)sys_net_bnet_send);
+    ps3_hle_register(0xDABBC2C0u, "inet_addr", (void*)sys_net_bnet_inet_addr);
 }
 
 /* ---------------------------------------------------------------------------
