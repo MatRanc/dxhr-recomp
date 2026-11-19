@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(MyGameRecomp
+project(DeusExHR
     VERSION 0.1.0
     LANGUAGES C CXX
     DESCRIPTION "Recompiled PS3 game project (ps3recomp)"
@@ -320,7 +320,7 @@ install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
 # attaches to the same window again. One Objective-C file and no runtime
 # library, so it builds in seconds:
 #
-#   ./MyGameRecomp_window [--title T] [--size WxH] -- ./MyGameRecomp <args>
+#   ./DeusExHR_window [--title T] [--size WxH] -- ./DeusExHR <args>
 if(APPLE)
     enable_language(OBJC)
     add_executable(${PROJECT_NAME}_window "${PS3RECOMP_DIR}/tools/host_window/host_window.m")

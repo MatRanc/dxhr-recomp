@@ -50,7 +50,7 @@ The executable takes the decrypted ELF as its first argument, and optionally the
 directory the guest filesystem should resolve against:
 
 ```bash
-./build/MyGameRecomp path/to/EBOOT.elf [vfs-root]
+./build/DeusExHR path/to/EBOOT.elf [vfs-root]
 ```
 
 Graphics come up on Direct3D 12 on Windows and Metal on macOS with no extra

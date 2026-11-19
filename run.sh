@@ -12,4 +12,4 @@ GCM_ENGINE_3D_SUBCH=1 SPURS_JC_JOBLIST_PAR=4 SPURS_JC_JOB_PAR=${SPURS_JC_JOB_PAR
 PS3_VERBOSE=${PS3_VERBOSE:-0} PS3_OVERLAY_HUD=${PS3_OVERLAY_HUD:-1} PS3_OVERLAY_HUD_GRAPH=${PS3_OVERLAY_HUD_GRAPH:-1} \
 PS3_MOUSE_CAPTURE=${PS3_MOUSE_CAPTURE:-0} PS3_MOUSE=${PS3_MOUSE:-0} \
 SPU_DUMP_MISS=${SPU_DUMP_MISS:-$PWD/jobdump} \
-exec timeout -s KILL ${1:-60} port-afro/build/MyGameRecomp work/EBOOT.elf > ${2:-run.log} 2>&1
+exec timeout -s KILL ${1:-60} port-afro/build/DeusExHR work/EBOOT.elf > ${2:-run.log} 2>&1
