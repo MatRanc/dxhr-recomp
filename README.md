@@ -6,11 +6,20 @@ Native macOS (Apple Silicon / Metal) static recompilation of **Deus Ex: Human Re
 
 See [HANDOFF.md](HANDOFF.md) for detailed technical notes, status, and debugging history.
 
-## Screenshots
+## Status & Performance
 
-| Title Screen | Loading Screen | Opening 3D Cinematic |
-|---|---|---|
-| ![Title Screen](docs/screenshots/title_screen.png) | ![Loading Screen](docs/screenshots/loading_screen.png) | ![Opening 3D Cinematic](docs/screenshots/opening_3d.png) |
+- **Tested on:** Apple Silicon (M1), macOS, Metal backend (`BLES01150` v1.01)
+- **What works:** Boots past HDD cache verification, intro logos, Title Screen, Main Menu, New Game loading screen, opening 3D cinematic, and 3D gameplay (all 23 EBOOT SPURS jobs lifted, 0 unresolved NIDs).
+- **Frame rate:** Locked **30.0 fps** in menus, cinematics, and ~80% of 3D gameplay (`+150` flips per 5 s in `run_playtest17.log`); **~60 fps** during loading screens.
+- **Known issues:** Brief ~200–300 ms frame-time spikes during asset-streaming bursts (`ResolveDecompressor` one-shot SPURS chains / semaphore waits).
+
+## Roadmap
+
+- [ ] Eliminate ~200–300 ms asset-streaming frame-time spikes
+- [ ] Add a one-shot `tools/extract_jobs.py` script to extract all 23 SPURS jobs directly from `EBOOT.elf`
+- [ ] Verify full-game progression past the opening mission (combat, saves, audio/FMOD, input)
+- [ ] Upstream remaining macOS/Metal/SPURS fixes to `sp00nznet/ps3recomp`
+- [ ] Capture clean gameplay screenshots for this README
 
 ---
 
