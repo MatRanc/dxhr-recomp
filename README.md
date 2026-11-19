@@ -23,7 +23,7 @@ See [HANDOFF.md](HANDOFF.md) for detailed technical notes, status, and debugging
 - [ ] Add `tools/extract_jobs.py` for one-shot SPURS job extraction
 - [ ] Verify progression past the opening mission
 - [ ] Upstream remaining fixes to `sp00nznet/ps3recomp`
-- [ ] Add gameplay screenshots
+- [x] Add gameplay screenshots
 
 ---
 
