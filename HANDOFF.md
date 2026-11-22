@@ -7,7 +7,7 @@ Verified via headless frame dumps (with `PAD_SCRIPT="36:0x0008,43:0x4000,49:0x40
 - **New Game loading screen** (`frame_ingame_test.png`, ~60 fps during load)
 - **3D scene + opening cinematic with subtitles** (`frame_3d_first.png`, 78% non-zero, 9 render targets including 1280×720 HDR/tonemap + 640×360 / 320×180 bloom/SSAO, 23+ 3D MSL shaders compiled & cached in `cache/msl`, 0 missing SPU jobs, 0 unresolved NIDs).
 
-**Current status:** **Smooth 30.0 fps in menus, cinematics, and most 3D gameplay on Apple Silicon Metal!** In `run_playtest17.log` (7-minute run, 13,190 flips, 150 KB total log), menus/early scenes ran for 24 consecutive 5 s heartbeats at a locked 30.0 fps (`+150` flips/5 s) and 3D gameplay ran for 17 consecutive 5 s heartbeats at a locked 30.0 fps (`+149`–`+150` flips/5 s). The only remaining hiccups are brief ~200–300 ms frame-time spikes during asset-streaming bursts (`[sem] create ... lr=0x00B557D8` + `ResolveDecompressor` one-shot SPURS chains); see **Session 8 — start here** below.
+**Current status:** **Smooth 30.0 fps in menus, cinematics, and most 3D gameplay on Apple Silicon Metal!** In `run_playtest17.log` (7-minute run, 13,190 flips, 150 KB total log), menus/early scenes ran for 24 consecutive 5 s heartbeats at a locked 30.0 fps (`+150` flips/5 s) and 3D gameplay ran for 17 consecutive 5 s heartbeats at a locked 30.0 fps (`+149`–`+150` flips/5 s). Remaining dips (23–28 fps) come in dense gameplay scenes from SPU job load, mostly the `ShaderPatch` chain, NOT streaming (Session 8 measured this; see **Session 8 result** below).
 
 - Title: Deus Ex: Human Revolution, EU disc `BLES01150`, v1.01 patch EBOOT
 - Toolkit: [sp00nznet/ps3recomp](https://github.com/sp00nznet/ps3recomp) v0.19.0 (`ae92407b`)
@@ -291,7 +291,7 @@ disturbs the game — don't profile their live session unprompted; use `./captur
 | 16 | fix 9 (log flood + `JoinJobChain` condvar) | User: "buttery smooth in the menus... like 90% there", with minor audio jumpiness / shader flicker & occasional ~300 ms spikes |
 | 17 | fixes 10–11 (exact 5.33 ms audio clock + 6 ms shader grace + 0.5 ms SPURS park poll) | **Locked 30.0 fps (`+150` flips/5 s) for ~80 % of the 7-min run (13,190 flips, 150 KB log):** 24 straight heartbeats at `+150` in early scenes, 17 straight heartbeats at `+149`/`+150` in late 3D gameplay; brief dips (`+101`–`+138` flips/5 s) only during asset-streaming bursts |
 
-### Session 8 — start here (remaining brief ~200–300 ms streaming hiccups in `run_playtest17.log`)
+### Session 8 — original hypothesis (DISPROVED, see "Session 8 finding" / "Session 8 result" below; kept for history)
 
 1. **Every single frame-rate dip in `run_playtest17.log` (flips 7084, 8383–8877, and 12890) coincides with a burst of
    `[sem] create id=5..8 name='' init=0 max=65535 id_out=0x18894xxx lr=0x00B557D8`:**
@@ -311,12 +311,21 @@ disturbs the game — don't profile their live session unprompted; use `./captur
    - Per-draw CPU in `sink_end` (`eng_texture_slot`, `rsx_vertex_remap_build`, `rsx_vertex_fetch_many`) if dense scenes ever dip below 30 fps outside of streaming bursts.
    - Unlock the game's 30 fps cap (needs a game patch; Ghidra offered by the user).
 
+### Session 8 finding (2026-11-22, Mac): parking is NOT the dip cause, so don't use SPURS_JC_NO_PARK=ResolveDecompressor
+- `ResolveDecompressor` (jc=0x0107DB80) is an **append ring**, not one-shot: run#1 `[END]`, run#2 `[job, END]`, run#3 `[job, job, …]`,
+  all from entry 0x11FE42A0. The game writes a job over END, appends a new END and calls Run again. Shutdown/Join/re-create happens only a few times.
+- A walker parked at END picks up the append within 0.5 ms (cond broadcast from the async kick), which is how hardware behaves.
+  `SPURS_JC_NO_PARK` makes the walker exit at END, and the next Run restarts from entry, so **every earlier decompression job runs again**. Don't use it for this chain.
+- Applied `exp/dxhr-jc-nopark` (d6267dc1) as an uncommitted patch, then extended `SPURS_JC_STATS=1` to also print
+  `jobs X ms total, slowest Y ms (jc=… name)` per 5 s, so a dip window shows whether a decompression job (or another chain) is the long pole.
+- Next run: `SPURS_JC_STATS=1 ./run.sh 900 run_jc_a.log` through the streaming area, then `grep -a "jc-stats\|heartbeat" run_jc_a.log`.
+
 ### How to test / capture (user runs these; don't launch the game yourself)
 - `./run.sh 900 run_playtestN.log` — normal play (HUD on: fps, frame time graph).
 - `./run.sh diag 900 log` then `./capture.sh` in the scene — pass dump (+ per-draw constants, shaders in `shaderdump/`)
   and a 5 s CPU profile `sample_capture.txt`.
 
-Still open: see "Session 8 — start here" above. The user does the in-game testing — do not launch the game yourself.
+Still open: see "Session 8 result" at the end of this file. The user does the in-game testing — do not launch the game yourself.
 
 ### Session 5 next steps (kept for history) — bugs caught during live gameplay playtest!
 1. **Fix the gameplay freeze (`ps3recomp-afro/runtime/spu/spu_dma.h:1345–1380` — root cause ALREADY FOUND!):**
@@ -400,3 +409,9 @@ Still open: see "Session 8 — start here" above. The user does the in-game test
 - The disc key file (`.dkey`) was never needed. The ISO's sectors are plain despite the 3k3y header.
 - The project note for future Claude sessions is `~/.claude/projects/-Users-matbook2/memory/project_dxhr_ps3recomp.md`.
 - Upstream activity feed for PS3 recomp projects: github.com/undecuple/ps3rc-feed. Active macOS porters: erikomis, n0madic (Resistance 3).
+
+### Session 8 result (run_jc_a.log, run_jc_c.log): dips are SPU job load, not streaming
+- Streaming windows held +150 flips/5 s. Dips (+103..+143) line up with total chain job time > ~5.7 s per 5 s.
+- Per chain (SPURS_JC_STATS=1 `per-chain ms:` line): ShaderPatch ~50% (up to 3.8 s/5 s), Rendering ~20%, AnimJob/Scene/Cloth the rest.
+  ShaderPatch is a SYNC_KICK chain with 2-job batches ([job, job, self-NEXT]), so at most 2 threads and the render thread waits on it.
+- Next: `./capture.sh` (sample) in a heavy scene to see whether ShaderPatch job time is lifted SPU compute or spu_channels rwlock waits.
