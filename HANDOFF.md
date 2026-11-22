@@ -316,7 +316,8 @@ disturbs the game — don't profile their live session unprompted; use `./captur
   all from entry 0x11FE42A0. The game writes a job over END, appends a new END and calls Run again. Shutdown/Join/re-create happens only a few times.
 - A walker parked at END picks up the append within 0.5 ms (cond broadcast from the async kick), which is how hardware behaves.
   `SPURS_JC_NO_PARK` makes the walker exit at END, and the next Run restarts from entry, so **every earlier decompression job runs again**. Don't use it for this chain.
-- Applied `exp/dxhr-jc-nopark` (d6267dc1) as an uncommitted patch, then extended `SPURS_JC_STATS=1` to also print
+- `ps3recomp-afro` is now checked out on branch `exp/dxhr-jc-nopark` (d6267dc1 + 3b0077cd, pushed; not merged into `dxhr`).
+  3b0077cd extended `SPURS_JC_STATS=1` to also print
   `jobs X ms total, slowest Y ms (jc=… name)` per 5 s, so a dip window shows whether a decompression job (or another chain) is the long pole.
 - Next run: `SPURS_JC_STATS=1 ./run.sh 900 run_jc_a.log` through the streaming area, then `grep -a "jc-stats\|heartbeat" run_jc_a.log`.
 
